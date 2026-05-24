@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem("isLogin") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Pengiriman - SITTA UT</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden bg-blue-50">
+
+    <nav class="bg-[#1e3a8a] text-white px-6 py-4 flex flex-wrap justify-between items-center relative z-50 shadow-md">
+        <div class="flex items-center gap-4">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-lg shadow-sm">
+                    <img 
+                        src="assets/ut.png" 
+                        onerror="this.onerror=null; this.src='assets/ut.png.webp';"
+                        alt="Logo UT"
+                        class="w-9 h-9 object-contain"
+                    >
+                </div>
+
+                <span class="font-bold text-xl tracking-wide hidden sm:block">
+                    SITTA-UT
+                </span>
+            </a>
+        </div>
+
+        <ul class="hidden md:flex space-x-8 items-center font-medium text-sm">
+            <li>
+                <a href="stock.html" class="nav-link hover:text-orange-300">
+                    Informasi Bahan Ajar
+                </a>
+            </li>
+
+            <li>
+                <a href="tracking.html" class="nav-link text-orange-300 hover:text-orange-300">
+                    Tracking Pengiriman
+                </a>
+            </li>
+
+            <li class="relative group pb-2 pt-2">
+                <a href="laporan.html" class="nav-link hover:text-orange-300 flex items-center gap-1">
+                    Laporan
+                    <i class="fa-solid fa-caret-down"></i>
+                </a>
+
+                <div class="hidden group-hover:block absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 z-50">
+                    <a href="laporan.html#monitoring" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 border-b border-gray-50">
+                        Monitoring Progress DO Bahan Ajar
+                    </a>
+
+                    <a href="laporan.html#rekap" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                        Rekap Bahan Ajar
+                    </a>
+                </div>
+            </li>
+
+            <li>
+                <a href="histori.html" class="nav-link hover:text-orange-300">
+                    Histori Transaksi
+                </a>
+            </li>
+        </ul>
+
+        <button id="logoutBtn"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors flex items-center gap-2 text-sm mt-4 md:mt-0 cursor-pointer">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+    </nav>
+
+    <div class="relative z-10">
+        <svg viewBox="0 0 1440 250" class="w-full h-auto drop-shadow-md -mt-1" preserveAspectRatio="none">
+            <path fill="#f97316" fill-opacity="0.8"
+                d="M0,64L48,85.3C96,107,192,149,288,154.7C384,160,480,128,576,106.7C672,85,768,75,864,85.3C960,96,1056,128,1152,144C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+            </path>
+
+            <path fill="#1e3a8a" fill-opacity="1"
+                d="M0,128L48,122.7C96,117,192,107,288,112C384,117,480,139,576,149.3C672,160,768,160,864,138.7C960,117,1056,75,1152,64C1248,53,1344,75,1392,85.3L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+            </path>
+        </svg>
+    </div>
+
+    <main id="trackingApp" v-cloak class="container mx-auto px-4 -mt-16 md:-mt-24 relative z-20 pb-12">
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100 backdrop-blur-sm bg-white/90 max-w-2xl mx-auto">
+
+            <div class="text-center mb-6">
+                <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500">
+                    <i class="fa-solid fa-magnifying-glass-location text-2xl"></i>
+                </div>
+
+                <h2 class="text-2xl font-bold text-blue-900">
+                    Tracking Pengiriman
+                </h2>
+
+                <p class="text-gray-500 text-sm mt-1">
+                    Lacak status pengiriman bahan ajar Anda
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <div class="relative w-full sm:w-2/3">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-box text-gray-400"></i>
+                    </div>
+
+                    <input type="text"
+                        v-model="inputDO"
+                        @keyup.enter="cariDO"
+                        placeholder="Masukkan Nomor DO, contoh: DO2025-0001"
+                        class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+
+                <button @click="cariDO"
+                    class="w-full sm:w-auto bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-search"></i>
+                    Lacak
+                </button>
+            </div>
+        </div>
+
+        <div v-if="hasilTracking" class="max-w-3xl mx-auto mb-8">
+            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 mt-6">
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-5 mb-6 gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-900">
+                            Detail Pengiriman
+                        </h3>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Nomor DO:
+                            <span class="font-bold text-gray-800">
+                                {{ hasilTracking.nomorDO }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <span class="px-4 py-1.5 rounded-full text-sm font-semibold border" :class="statusClass(hasilTracking.status)">
+                        {{ hasilTracking.status }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100">
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">NIM</span>
+                        <span class="text-sm font-medium text-gray-800">{{ hasilTracking.nim }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">Penerima</span>
+                        <span class="text-sm font-medium text-gray-800">{{ hasilTracking.nama }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">Ekspedisi</span>
+                        <span class="text-sm font-medium text-gray-800">
+                            <i class="fa-solid fa-truck text-orange-500 mr-2"></i>
+                            {{ hasilTracking.ekspedisi }}
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">Tanggal Kirim</span>
+                        <span class="text-sm font-medium text-gray-800">{{ hasilTracking.tanggalKirim }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">Kode Paket</span>
+                        <span class="text-sm font-medium text-gray-800">{{ hasilTracking.paket }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-500 mb-1 uppercase font-semibold">Total Harga</span>
+                        <span class="text-sm font-medium text-gray-800">{{ formatRupiah(hasilTracking.total) }}</span>
+                    </div>
+
+                </div>
+
+                <h4 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-route text-orange-500"></i>
+                    Riwayat Perjalanan
+                </h4>
+
+                <div class="timeline">
+                    <div v-for="(item, index) in hasilTracking.perjalanan" :key="index" class="timeline-item">
+                        <div class="timeline-dot"></div>
+
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <span class="text-xs font-bold text-orange-500 mb-1 block">
+                                <i class="fa-regular fa-clock mr-1"></i>
+                                {{ item.waktu }}
+                            </span>
+
+                            <p class="text-sm text-gray-700">
+                                {{ item.keterangan }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-orange-500"></i>
+                Tambah Delivery Order Baru
+            </h2>
+
+            <form @submit.prevent="submitDO" class="space-y-4">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            Nomor DO
+                        </label>
+
+                        <input type="text" v-model="newDO.nomorDO" readonly
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-100 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            NIM
+                        </label>
+
+                        <input type="text" v-model="newDO.nim" placeholder="Masukkan NIM"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            Nama
+                        </label>
+
+                        <input type="text" v-model="newDO.nama" placeholder="Masukkan Nama"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            Ekspedisi
+                        </label>
+
+                        <select v-model="newDO.ekspedisi"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                            <option value="">Pilih Ekspedisi</option>
+                            <option v-for="item in pengirimanList" :key="item.kode" :value="item.nama">
+                                {{ item.nama }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            Paket Bahan Ajar
+                        </label>
+
+                        <select v-model="newDO.paket"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                            <option value="">Pilih Paket</option>
+                            <option v-for="item in paketList" :key="item.kode" :value="item.kode">
+                                {{ item.kode }} - {{ item.nama }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">
+                            Tanggal Kirim
+                        </label>
+
+                        <input type="date" v-model="newDO.tanggalKirim"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 text-sm">
+                    </div>
+
+                </div>
+
+                <div v-if="selectedPaket" class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                    <h3 class="font-bold text-blue-900 mb-2">
+                        Detail Isi Paket: {{ selectedPaket.nama }}
+                    </h3>
+
+                    <ul class="list-disc pl-5 text-sm text-gray-700">
+                        <li v-for="item in isiPaketTerpilih" :key="item.kode">
+                            {{ item.kode }} - {{ item.judul }}
+                        </li>
+                    </ul>
+
+                    <p class="mt-3 font-bold text-blue-900">
+                        Total Harga: {{ formatRupiah(newDO.total) }}
+                    </p>
+                </div>
+
+                <button type="submit"
+                    class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-lg shadow transition-all text-sm">
+                    Simpan Delivery Order
+                </button>
+
+            </form>
+        </div>
+
+    </main>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/tracking-app.js"></script>
+
+    <script>
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+                Swal.fire({
+                    title: "Yakin ingin logout?",
+                    text: "Anda akan keluar dari sistem.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#1e3a8a",
+                    cancelButtonColor: "#f97316",
+                    confirmButtonText: "Logout",
+                    cancelButtonText: "Batal"
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem("isLogin");
+                        localStorage.removeItem("namaUser");
+                        localStorage.removeItem("roleUser");
+                        localStorage.removeItem("lokasiUser");
+
+                        Swal.fire({
+                            title: "Logout Berhasil",
+                            text: "Anda telah keluar dari sistem.",
+                            icon: "success",
+                            confirmButtonColor: "#1e3a8a"
+                        }).then(function () {
+                            window.location.href = "index.html";
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

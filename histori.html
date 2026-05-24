@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <!-- --- 1. VALIDASI PRE-LOGIN (SESSION CHECK) --- -->
+    <script>
+        // Memeriksa status login. Jika tidak valid, pengguna langsung dilempar kembali ke halaman awal (index.html).
+        if (localStorage.getItem("isLogin") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histori Transaksi - SITTA UT</title>
+    <!-- Import Tailwind CSS, SweetAlert2, Google Fonts, Font Awesome, dan CSS kustom -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden bg-blue-50">
+    <!-- --- 2. NAVIGATION BAR (NAVBAR) --- -->
+    <nav class="bg-[#1e3a8a] text-white px-6 py-4 flex flex-wrap justify-between items-center relative z-50 shadow-md">
+        <!-- Logo Brand SITTA-UT -->
+        <div class="flex items-center gap-4">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-lg shadow-sm">
+                    <img 
+                        src="assets/ut.png" 
+                        onerror="this.onerror=null; this.src='assets/ut.png.webp';"
+                        alt="Logo UT"
+                        class="w-9 h-9 object-contain"
+                    >
+                </div>
+
+                <span class="font-bold text-xl tracking-wide hidden sm:block">
+                    SITTA-UT
+                </span>
+            </a>
+        </div>
+        <!-- Menu Navigasi Utama -->
+        <ul class="hidden md:flex space-x-8 items-center font-medium text-sm">
+            <li>
+                <a href="stock.html" class="nav-link hover:text-orange-300">
+                    Informasi Bahan Ajar
+                </a>
+            </li>
+
+            <li>
+                <a href="tracking.html" class="nav-link hover:text-orange-300">
+                    Tracking Pengiriman
+                </a>
+            </li>
+
+            <li class="relative group pb-2 pt-2">
+                <a href="laporan.html" class="nav-link hover:text-orange-300 flex items-center gap-1">
+                    Laporan
+                    <i class="fa-solid fa-caret-down"></i>
+                </a>
+
+                <div class="hidden group-hover:block absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 z-50">
+                    <a href="laporan.html#monitoring" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 border-b border-gray-50">
+                        Monitoring Progress DO Bahan Ajar
+                    </a>
+
+                    <a href="laporan.html#rekap" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                        Rekap Bahan Ajar
+                    </a>
+                </div>
+            </li>
+
+            <li>
+                <a href="histori.html" class="nav-link text-orange-300 hover:text-orange-300">
+                    Histori Transaksi
+                </a>
+            </li>
+        </ul>
+
+        <button id="logoutBtn"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors flex items-center gap-2 text-sm mt-4 md:mt-0 cursor-pointer">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+    </nav>
+    <!-- --- 3. KONTEN UTAMA & INTEGRASI VUE.JS (CONTAINER) --- -->
+    <!-- Menggunakan directive v-cloak untuk mencegah kedipan elemen sebelum Vue selesai memuat data -->
+    <main id="historiApp" v-cloak class="container mx-auto px-4 py-10">
+        <!-- Header Halaman -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 mb-8">
+            <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-green-700"></i>
+                Histori Transaksi
+            </h1>
+            <!-- Tabel Riwayat Transaksi -->
+            <p class="text-gray-500 mt-2">
+                Riwayat transaksi dan aktivitas Delivery Order bahan ajar.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600">
+                    <thead class="text-xs text-white uppercase bg-blue-700">
+                        <tr>
+                            <th class="px-6 py-4">Tanggal</th>
+                            <th class="px-6 py-4">Aktivitas</th>
+                            <th class="px-6 py-4">Nomor DO</th>
+                            <th class="px-6 py-4">Pengguna</th>
+                            <th class="px-6 py-4">Keterangan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!-- Loop Data: Merender baris tabel secara dinamis dari computed property 'historiGabungan' -->
+                        <tr v-for="(item, index) in historiGabungan" :key="index" class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4">{{ item.tanggal }}</td>
+                            <td class="px-6 py-4 font-bold text-blue-900">{{ item.aktivitas }}</td>
+                            <td class="px-6 py-4">{{ item.nomorDO }}</td>
+                            <td class="px-6 py-4">{{ item.pengguna }}</td>
+                            <td class="px-6 py-4">{{ item.keterangan }}</td>
+                        </tr>
+                        <!-- Conditional Render: Menampilkan pesan khusus jika data histori kosong -->
+                        <tr v-if="historiGabungan.length === 0">
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                Belum ada histori transaksi.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+    <!-- --- 4. SCRIPT INSTALASI & DEPENDENSI --- -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/histori-app.js"></script>
+    <!-- --- 5. LOGIKA NAVIGASI (LOGOUT HANDLER) --- -->
+    <script>
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (logoutBtn) {
+            // Menangani interaksi tombol logout dengan pop-up konfirmasi SweetAlert2
+            logoutBtn.addEventListener("click", function () {
+                Swal.fire({
+                    title: "Yakin ingin logout?",
+                    text: "Anda akan keluar dari sistem.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#1e3a8a",
+                    cancelButtonColor: "#f97316",
+                    confirmButtonText: "Logout",
+                    cancelButtonText: "Batal"
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        // Membersihkan total session state pengguna dari localStorage
+                        localStorage.removeItem("isLogin");
+                        localStorage.removeItem("namaUser");
+                        localStorage.removeItem("roleUser");
+                        localStorage.removeItem("lokasiUser");
+                        // Memunculkan pesan sukses dan meredirect halaman ke index.html
+                        Swal.fire({
+                            title: "Logout Berhasil",
+                            text: "Anda telah keluar dari sistem.",
+                            icon: "success",
+                            confirmButtonColor: "#1e3a8a"
+                        }).then(function () {
+                            window.location.href = "index.html";
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

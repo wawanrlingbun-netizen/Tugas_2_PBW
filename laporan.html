@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem("isLogin") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan - SITTA UT</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden bg-blue-50">
+
+    <nav class="bg-[#1e3a8a] text-white px-6 py-4 flex flex-wrap justify-between items-center relative z-50 shadow-md">
+        <div class="flex items-center gap-4">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <div class="bg-white p-2 rounded-lg shadow-sm">
+                    <img 
+                        src="assets/ut.png" 
+                        onerror="this.onerror=null; this.src='assets/ut.png.webp';"
+                        alt="Logo UT"
+                        class="w-9 h-9 object-contain"
+                    >
+                </div>
+
+                <span class="font-bold text-xl tracking-wide hidden sm:block">
+                    SITTA-UT
+                </span>
+            </a>
+        </div>
+
+        <ul class="hidden md:flex space-x-8 items-center font-medium text-sm">
+            <li>
+                <a href="stock.html" class="nav-link hover:text-orange-300">
+                    Informasi Bahan Ajar
+                </a>
+            </li>
+
+            <li>
+                <a href="tracking.html" class="nav-link hover:text-orange-300">
+                    Tracking Pengiriman
+                </a>
+            </li>
+
+            <li class="relative group pb-2 pt-2">
+                <a href="laporan.html" class="nav-link text-orange-300 hover:text-orange-300 flex items-center gap-1">
+                    Laporan
+                    <i class="fa-solid fa-caret-down"></i>
+                </a>
+
+                <div class="hidden group-hover:block absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 z-50">
+                    <a href="#monitoring" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 border-b border-gray-50">
+                        Monitoring Progress DO Bahan Ajar
+                    </a>
+
+                    <a href="#rekap" class="block px-4 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600">
+                        Rekap Bahan Ajar
+                    </a>
+                </div>
+            </li>
+
+            <li>
+                <a href="histori.html" class="nav-link hover:text-orange-300">
+                    Histori Transaksi
+                </a>
+            </li>
+        </ul>
+
+        <button id="logoutBtn"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-lg shadow transition-colors flex items-center gap-2 text-sm mt-4 md:mt-0 cursor-pointer">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+    </nav>
+
+    <main id="laporanApp" v-cloak class="container mx-auto px-4 py-10">
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 mb-8">
+            <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-column text-orange-500"></i>
+                Laporan SITTA-UT
+            </h1>
+
+            <p class="text-gray-500 mt-2">
+                Monitoring progress Delivery Order dan rekap stok bahan ajar.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+                <p class="text-sm text-gray-500">Total Bahan Ajar</p>
+                <h2 class="text-3xl font-bold text-blue-900">{{ totalBahanAjar }}</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+                <p class="text-sm text-gray-500">Total Stok</p>
+                <h2 class="text-3xl font-bold text-blue-900">{{ totalStok }}</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+                <p class="text-sm text-gray-500">Stok Re-order</p>
+                <h2 class="text-3xl font-bold text-orange-500">{{ stokMenipis }}</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+                <p class="text-sm text-gray-500">Total DO</p>
+                <h2 class="text-3xl font-bold text-green-700">{{ totalDO }}</h2>
+            </div>
+        </div>
+
+        <div id="monitoring" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-8">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-blue-900">
+                    Monitoring Progress DO Bahan Ajar
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600">
+                    <thead class="text-xs text-white uppercase bg-blue-700">
+                        <tr>
+                            <th class="px-6 py-4">Nomor DO</th>
+                            <th class="px-6 py-4">NIM</th>
+                            <th class="px-6 py-4">Nama</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Ekspedisi</th>
+                            <th class="px-6 py-4">Tanggal Kirim</th>
+                            <th class="px-6 py-4">Paket</th>
+                            <th class="px-6 py-4">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="item in daftarDO" :key="item.nomorDO" class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 font-bold text-blue-900">{{ item.nomorDO }}</td>
+                            <td class="px-6 py-4">{{ item.nim }}</td>
+                            <td class="px-6 py-4">{{ item.nama }}</td>
+                            <td class="px-6 py-4">{{ item.status }}</td>
+                            <td class="px-6 py-4">{{ item.ekspedisi }}</td>
+                            <td class="px-6 py-4">{{ item.tanggalKirim }}</td>
+                            <td class="px-6 py-4">{{ item.paket }}</td>
+                            <td class="px-6 py-4">{{ formatRupiah(item.total) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="rekap" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-blue-900">
+                    Rekap Bahan Ajar
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600">
+                    <thead class="text-xs text-white uppercase bg-blue-700">
+                        <tr>
+                            <th class="px-6 py-4">Kode</th>
+                            <th class="px-6 py-4">Judul</th>
+                            <th class="px-6 py-4">Kategori</th>
+                            <th class="px-6 py-4">UPBJJ</th>
+                            <th class="px-6 py-4">Qty</th>
+                            <th class="px-6 py-4">Safety</th>
+                            <th class="px-6 py-4">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="item in stokList" :key="item.kode" class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 font-bold text-blue-900">{{ item.kode }}</td>
+                            <td class="px-6 py-4">{{ item.judul }}</td>
+                            <td class="px-6 py-4">{{ item.kategori }}</td>
+                            <td class="px-6 py-4">{{ item.upbjj }}</td>
+                            <td class="px-6 py-4">{{ item.qty }}</td>
+                            <td class="px-6 py-4">{{ item.safety }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold" :class="statusClass(item)">
+                                    {{ statusStok(item) }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr v-if="stokList.length === 0">
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                Data rekap bahan ajar belum tersedia.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/laporan-app.js"></script>
+
+    <script>
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+                Swal.fire({
+                    title: "Yakin ingin logout?",
+                    text: "Anda akan keluar dari sistem.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#1e3a8a",
+                    cancelButtonColor: "#f97316",
+                    confirmButtonText: "Logout",
+                    cancelButtonText: "Batal"
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem("isLogin");
+                        localStorage.removeItem("namaUser");
+                        localStorage.removeItem("roleUser");
+                        localStorage.removeItem("lokasiUser");
+
+                        Swal.fire({
+                            title: "Logout Berhasil",
+                            text: "Anda telah keluar dari sistem.",
+                            icon: "success",
+                            confirmButtonColor: "#1e3a8a"
+                        }).then(function () {
+                            window.location.href = "index.html";
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
